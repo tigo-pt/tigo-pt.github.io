@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Netflix</title>
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="../Content/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-image: url(https://img5.goodfon.com/wallpaper/nbig/1/61/fon-netflix-logo-raduga-tsvet-fon-background-skachat-oboi-sk.jpg)
+        }
+        #main {
+            background-color: rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html" title="Netflix">
+            <img src="Netflix-Logo.wine.png" height="30" class="d-inline-block align-top" alt="" />
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="nav navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="see_later.html"><i class="fa fa-list"></i> Ver mais tarde<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="favorites.html"><i class="fa fa-list"></i> Favorites <span class="sr-only">(current)</span></a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="Log_in.html">
+                        <img src="User logo2.png" height="30" />
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid"  id="main" style="margin-bottom:60px">
+        <div class="container" style="color:white">
+            <div class="mt-2 mb-1 row">
+                <h2 data-bind="text:name()" class="ml-1"></h2>
+            </div>
+            <div class=" mb-3 row">
+                <h5 class="ml-1">Release year:</h5>
+                <h5 data-bind="text:releaseyear()" class="ml-2"></h5>
+            </div>
+            <div class=" mb-3 row">
+                <!--<img data-bind="attr: {src: image}" />-->
+                <img data-bind="attr: {src: image}" onerror="this.src ='https://www.houseofcharity.org/wp-content/uploads/2019/07/White-Square.jpg'" style="width:183.6px;height:271.73px"/>
+            </div>
+            <table class="table table-striped table-sm small" style="color:white">
+                <tr class="row">
+                    <th class="col-md-2">Description</th>
+                    <td class="col-md-10" data-bind="text: description"></td>
+                </tr>
+                <tr class="row">
+                    <th class="col-md-2">Actors</th>
+                    <td class="col-md-10">
+                        <div data-bind="foreach: actors">
+                            <div><i class=" fa fa-user-o"></i> <a data-bind="text: Name + '', attr: { href: './actorDetails.html?id=' + Id }"></a> </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="row">
+                    <th class="col-md-2">Directors</th>
+                    <td class="col-md-10">
+                        <div data-bind="foreach: directors">
+                            <div><i class=" fa fa-user-o"></i> <a data-bind="text: Name + '', attr: { href: './directorDetails.html?id=' + Id }"></a></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="row">
+                    <th class="col-md-2">Categories</th>
+                    <td class="col-md-10">
+                        <div data-bind="foreach: categories">
+                            <div><i class=" fa fa-bookmark-o"></i> <a data-bind="text: Name + '', attr: { href: './categorieview.html?pageSize=25&id='+Id+'&page=1' }"></a> </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr class="row">
+                    <th class="col-md-2">Type</th>
+                    <td class="col-md-10">
+                        <div data-bind="text: type">
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <nav class="navbar navbar-dark fixed-bottom bg-dark" role="navigation">
+        <div class="container">
+            <div class="navbar-text small">&copy;ITW2020 - Introdução às Tecnologias Web</div>
+            <div class="navbar-right navbar-text small d-sm-none d-md-block"><a href="http://www.ua.pt" title="Universidade de Aveiro">Universidade de Aveiro</a></div>
+        </div>
+    </nav>
+    <script src="../Scripts/jquery-3.5.1.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+    <script src="../Scripts/knockout-3.5.1.js"></script>
+    <script>
+        function vm() {
+            var self = this;
+            self.image = ko.observable()
+            self.name = ko.observable()            
+            self.releaseyear = ko.observable()           
+            self.description = ko.observable()          
+            self.categories = ko.observableArray()           
+            self.type = ko.observable()            
+            self.duration = ko.observable()          
+            self.actors = ko.observableArray()           
+            self.directors = ko.observableArray()         
+            self.country = ko.observableArray()
+            self.activate = function (id) {
+                $.ajax({
+                        type: 'GET',
+                        url: 'http://192.168.160.58/netflix/api/Titles/'+id,
+                        success: function (data) {                            
+                            self.name(data.Name)
+                            self.releaseyear(data.ReleaseYear);
+                            self.description(data.Description);
+                            self.type(data.Type.Name);
+                            self.duration(data.Duration);
+                            self.actors(data.Actors);
+                            self.directors(data.Directors);
+                            self.country(data.Countries);
+                            self.categories(data.Categories);
+                            tipo = 'movies'
+                            if (self.type() == 'TV Show') {
+                                tipo = 'shows'
+                            }
+                            const settings = {
+                                "async": true,
+                                "crossDomain": true,
+                                "url": "https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-"+tipo+"-by-title&title="+self.name(),
+                                "method": "GET",
+                                "headers": {
+                                    "x-rapidapi-key": "99dd015393msh40ac162288b548fp1cabb3jsnf6c6712adbbe",
+                                    "x-rapidapi-host": "movies-tvshows-data-imdb.p.rapidapi.com"
+                                }
+                            };
+                            $.ajax(settings).done(function (data) {
+                                console.log(data)
+                                if (tipo == 'movies') {
+                                    movie_results = data.movie_results
+                                    for (i in movie_results) {
+                                        if (movie_results[i].title == self.name()) {
+                                            var imdbid = data.movie_results[i].imdb_id
+                                        }
+                                    }
+                                    settings.url = "https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-movies-images-by-imdb&imdb=" + imdbid}
+                                if (tipo == 'shows') {
+                                    shows_results = data.tv_results
+                                    for (i in shows_results) {
+                                        if (shows_results[i].title == self.name()) {
+                                            var show = shows_results[i]
+                                            imdbid = show.imdb_id
+                                        }
+                                    }
+                                    settings.url = "https://movies-tvshows-data-imdb.p.rapidapi.com/?type=get-show-images-by-imdb&imdb=" + imdbid
+                                }
+                                $.ajax(settings).done(function (response) {
+                                    self.image(response.poster)
+                                });
+                            });
+                        }
+                })
+
+            }
+            var id = getid();
+            if (id == undefined)
+                self.activate(1);
+            else {
+                self.activate(id);
+            }
+        }
+        function getid() {
+            var sPageURL = window.location.href.toString();
+            for (i in sPageURL) {
+                if (sPageURL[i] === '=') {
+                    return String(sPageURL.slice((parseInt(i) + 1)))
+                }
+            }
+        }
+        $().ready(function () {
+            ko.applyBindings(new vm())
+        })
+    </script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Netflix</title>
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="../Content/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-image: url(https://img5.goodfon.com/wallpaper/nbig/1/61/fon-netflix-logo-raduga-tsvet-fon-background-skachat-oboi-sk.jpg)
+        }
+
+        #main {
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        i {
+            color: white
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html" title="Netflix">
+            <img src="Netflix-Logo.wine.png" height="30" class="d-inline-block align-top" alt="" />
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="nav navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="see_later.html"><i class="fa fa-list"></i> Ver mais tarde<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="favorites.html"><i class="fa fa-list"></i> Favorites <span class="sr-only">(current)</span></a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="Log_in.html">
+                        <img src="User logo2.png" height="30" />
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="container-fluid " style="color:white" id="main">
+            <div class="border-bottom pt-4 pb-2 mb-3">
+                <h2 data-bind="text:displayName"></h2>
+            </div>
+            <!-- ko if:records().length > 0 -->
+            <div class="col-12 small">
+                <div class="row">
+                    <p class="mr-auto pt-2">
+                        <span data-bind="html: 'Page: ' + currentPage() + ' of ' + totalPages()"></span><br />
+                        <span data-bind="html: 'Titles: '+ fromRecord() + '-' + toRecord() + ' of ' + totalRecords()"></span>
+                    </p>
+                    <div class="my-0 pt-3">
+                        <ul class="pagination">
+                            <li><a class="page-link" data-bind="attr:{href: previousurl()}"><i style="color:aqua" class="fa fa-arrow-left"></i></a></li>
+                            <li><a class="page-link" data-bind="text: currentPage()"></a></li>
+                            <li><a class="page-link" data-bind="attr:{ href:nexturl()}"><i style="color:aqua" class="fa fa-arrow-right"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!-- /ko -->
+            <div class="clearfix"></div>
+            <table class="table table-striped table-sm small" style="color:white">
+                <thead>
+                    <tr>
+                        <th scope="col">Title</th>
+                        <th scope="col" class="text-right"></th>
+                    </tr>
+                </thead>
+                <tbody data-bind="foreach: records">
+                    <tr>
+                        <td data-bind="text:Name"></td>
+                        <td class="text-right">
+                            <a class="btn  btn-sm" data-bind="attr: { href:'./Title_view.html?id=' + Id }">
+                                <i class="fa fa-eye" title="Selecione para ver detalhes"></i>
+                            </a>
+                            <button class="btn  btn-sm">
+                                <i class="fa fa-plus" data-bind="attr: { id: Id + 's'},click: $parent.addsee_later.bind($data,Id,Name)" title="Selecione para ver mais tarde"></i>
+                            </button>
+                            <button class="btn  btn-sm">
+                                <i class="fa fa-heart-o" data-bind="attr: { id: Id + 'f'},click: $parent.addfavorite.bind($data,Id,Name)" title="Selecione para adicionar aos favoritos"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav class="navbar navbar-dark fixed-bottom bg-dark" role="navigation">
+            <div class="container">
+                <div class="navbar-text small">&copy;ITW2020 - Introdução às Tecnologias Web</div>
+                <div class="navbar-right navbar-text small d-sm-none d-md-block"><a href="http://www.ua.pt" title="Universidade de Aveiro">Universidade de Aveiro</a></div>
+            </div>
+        </nav>
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark text-light">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            <img src="../images/netflixIcon.png" height="30" /> Loading data...
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <i class="fa fa-spin fa-3x fa-refresh"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../Scripts/jquery-3.5.1.min.js"></script>
+    <script src="../Scripts/bootstrap.bundle.min.js"></script>
+    <script src="../Scripts/knockout-3.5.1.js"></script>
+    <script src="../Scripts/amplify.js"></script>
+    <script>
+        var vm = function () {
+            console.log('ViewModel initiated...');
+            //---Variáveis locais
+
+            var self = this;
+            self.url = ko.observable('')
+            self.baseUri = ko.observable('http://192.168.160.58/netflix/api/TitlesByYear');
+            self.displayName = 'Titles List';
+            self.error = ko.observable('');
+            self.passingMessage = ko.observable('');
+            self.records = ko.observableArray([]);
+            self.currentPage = ko.observable(1);
+            self.pagesize = ko.observable(25);
+            self.totalRecords = ko.observable(50);
+            self.hasPrevious = ko.observable(false);
+            self.hasNext = ko.observable(false);
+            self.addsee_later = function addsee_later(id, nome) {
+                var v = 'oi'
+                obj = {
+                    'Name': nome,
+                    'Id': id
+                }
+                $('#' + id + 's').toggleClass('fa-plus');
+                $('#' + id + 's').toggleClass('fa-minus');
+
+                if (amplify.store('see_later') == undefined) {
+                    obj = {
+                        'Name': nome,
+                        'Id': id,
+                        'p': 0
+                    }
+
+                    lst = []
+                    lst.push(obj)
+                    amplify.store('see_later', lst)
+                }
+                else {
+                    lst2 = amplify.store('see_later')
+                    for (i in lst2) {
+                        if (id == lst2[i].Id) {
+                            p = lst2[i].p
+                            v = false
+                            break
+                        }
+                        else {
+                            v = true
+
+                        }
+                    }
+                    console.log(v)
+                    if (v) {
+                        obj = {
+                            'Name': nome,
+                            'Id': id,
+                            'p': (lst2.lenght - 1),
+                        }
+                        lst2.push(obj)
+                        amplify.store('see_later', lst2)
+                    }
+                    else {
+                        lst2.splice(p, 1)
+                        amplify.store('see_later', lst2)
+                    }
+                }
+
+            }
+
+            self.addfavorite = function addfavorite(id, nome) {
+                var v = 'oi'
+                obj = {
+                    'Name': nome,
+                    'Id': id
+                }
+                $('#' + id + 'f').toggleClass('fa-heart');
+                $('#' + id + 'f').toggleClass('fa-heart-o');
+
+                if (amplify.store('favorites') == undefined) {
+                    obj = {
+                        'Name': nome,
+                        'Id': id,
+                        'p': 0
+                    }
+
+                    lst = []
+                    lst.push(obj)
+                    amplify.store('favorites', lst)
+                }
+                else {
+                    lst2 = amplify.store('favorites')
+                    for (i in lst2) {
+                        if (id == lst2[i].Id) {
+                            p = lst2[i].p
+                            v = false
+                            break
+                        }
+                        else {
+                            v = true
+
+                        }
+                    }
+                    console.log(v)
+                    if (v) {
+                        obj = {
+                            'Name': nome,
+                            'Id': id,
+                            'p': (lst2.lenght - 1),
+                        }
+                        lst2.push(obj)
+                        amplify.store('favorites', lst2)
+                    }
+                    else {
+                        lst2.splice(p, 1)
+                        amplify.store('favorites', lst2)
+                    }
+                }
+
+            }
+            self.previousPage = ko.computed(function () {
+                return self.currentPage() * 1 - 1;
+            }, self);
+            self.nextPage = ko.computed(function () {
+                return self.currentPage() * 1 + 1;
+            }, self);
+            self.fromRecord = ko.computed(function () {
+                return self.previousPage() * self.pagesize() + 1;
+            }, self);
+            self.toRecord = ko.computed(function () {
+                return Math.min(self.currentPage() * self.pagesize(), self.totalRecords());
+            }, self);
+            self.totalPages = ko.observable(0);
+            self.pageArray = function () {
+                var list = [];
+                var size = Math.min(self.totalPages(), 9);
+                var step;
+                if (size < 9 || self.currentPage() === 1)
+                    step = 0;
+                else if (self.currentPage() >= self.totalPages() - 4)
+                    step = self.totalPages() - 9;
+                else
+                    step = Math.max(self.currentPage() - 5, 0);
+
+                for (var i = 1; i <= size; i++)
+                    list.push(i + step);
+                return list;
+            };
+            //--- Page Events
+            self.activate = function (id) {
+                console.log('CALL: getTitle...');
+                var url = './pesquisaporano.html?year=' + id + "&pageSize=" + self.pagesize() + '&page='
+                self.url(url)
+                var composedUri = self.baseUri() + "?year=" + id + "&pageSize=" + self.pagesize() + '&page=' + getUrlParameter('page');
+                console.log(composedUri)
+                ajaxHelper(composedUri, 'GET').done(function (data) {
+                    console.log(data);
+                    hideLoading();
+                    self.records(data.Titles);
+                    self.currentPage(data.CurrentPage);
+                    self.hasNext(data.HasNext);
+                    self.hasPrevious(data.HasPrevious);
+                    self.pagesize(data.PageSize)
+                    self.totalPages(data.TotalPages);
+                    self.totalRecords(data.TotalTitles);
+                    //self.SetFavourites();
+                });
+            };
+            self.previousurl = ko.computed(function () {
+                if (self.currentPage() == 1) {
+                    return self.url() + '1'
+                }
+                else {
+                    p = String(self.currentPage() - 1)
+                    return self.url() + p
+                }
+            })
+            self.nexturl = ko.computed(function () {
+                if (self.currentPage() == self.totalPages()) {
+                    return self.url() + self.totalPages()
+                }
+                else {
+                    p = String(self.currentPage() + 1)
+                    return self.url() + p
+                }
+            })
+            //--- Internal functions
+            function ajaxHelper(uri, method, data) {
+                return $.ajax({
+                    type: method,
+                    url: uri,
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    data: data ? JSON.stringify(data) : null,
+                });
+
+            }
+            function showLoading() {
+                $('#myModal').modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+            }
+            function hideLoading() {
+                $('#myModal').on('shown.bs.modal', function (e) {
+                    $("#myModal").modal('hide');
+                })
+            }
+
+            function getUrlParameter(sParam) {
+                var sPageURL = window.location.search.substring(1),
+                    sURLVariables = sPageURL.split('&'),
+                    sParameterName,
+                    i;
+
+                for (i = 0; i < sURLVariables.length; i++) {
+                    sParameterName = sURLVariables[i].split('=');
+
+                    if (sParameterName[0] === sParam) {
+                        return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+                    }
+                }
+            };
+            //--- start ....
+          
+            var year = getUrlParameter('year');
+            console.log(year);
+            if (year == undefined)
+                self.activate(1);
+            else {
+                self.activate(year);
+            }
+        };
+
+        $(document).ready(function () {
+            console.log("ready!");
+            ko.applyBindings(new vm());
+        });
+
+    </script>
+</body>
+</html>

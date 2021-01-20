@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Netflix</title>
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="../Content/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-image: url(https://img5.goodfon.com/wallpaper/nbig/1/61/fon-netflix-logo-raduga-tsvet-fon-background-skachat-oboi-sk.jpg)
+        }
+
+        #main {
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        i {
+            color: white
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html" title="Netflix">
+            <img src="Netflix-Logo.wine.png" height="30" class="d-inline-block align-top" alt="" />
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="nav navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="see_later.html"><i class="fa fa-list"></i> Ver mais tarde<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="favorites.html"><i class="fa fa-list"></i> Favorites <span class="sr-only">(current)</span></a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="Log_in.html">
+                        <img src="User logo2.png" height="30" />
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid justify-content-center mb-5" id="main" style="color:white">
+        <div class="row justify-content-center">
+            <h1>Estatisticas</h1>
+        </div>
+
+        <div class="container mb-3 " style="text-align:center">
+            <div class="m-0" id="regions_div" style="width: 1028px; height: 500px;"></div>
+        </div>
+        <div class="container">
+            <div class="row" id="atores"></div>
+            <div class="row" id="categorias"></div>
+            <div class="row" id="diretores"></div>
+            <div class="row" id="Titulos"></div>
+        </div>
+    </div>
+    <nav class="navbar navbar-dark fixed-bottom bg-dark" role="navigation">
+        <div class="container">
+            <div class="navbar-text small">&copy;ITW2020 - Introdução às Tecnologias Web</div>
+            <div class="navbar-right navbar-text small d-sm-none d-md-block"><a href="http://www.ua.pt" title="Universidade de Aveiro">Universidade de Aveiro</a></div>
+        </div>
+    </nav>
+
+
+    <script src="../Scripts/jquery-3.5.1.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+    <script src="../Scripts/knockout-3.5.1.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        $().ready(function () {
+            var lst = [['Country', 'Tiltles']]
+            $.ajax({
+                type: 'GET',
+                url: 'http://192.168.160.58/netflix/api/Statistics/TitlesPerCountry',
+                success: function (data) {
+                    for (i in data) {
+                        lst.push([data[i].Key, data[i].Value])
+                    }
+                }
+            })
+            $.ajax({
+                type: 'GET',
+                url: 'http://192.168.160.58/netflix/api/Statistics',
+                success: function (data) {
+                    $('#atores').html('<h5>Atores: ' + data.Actors + '</h5>')
+                    $('#categorias').html('<h5>Categorias: ' + data.Categories + '</h5>')
+                    $('#diretores').html('<h5>Diretores: ' + data.Directors + '</h5>')
+                    $('#Titulos').html('<h5>Titulos: ' + data.Titles + '</h5>')
+
+                }
+            })
+            google.charts.load('current', {
+                'packages': ['geochart'],
+                'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY'
+            });
+            google.charts.setOnLoadCallback(drawRegionsMap);
+            console.log(lst)
+            function drawRegionsMap() {
+                var data = google.visualization.arrayToDataTable(lst);
+
+                var options = {};
+
+                var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
+
+                chart.draw(data, options);
+            }
+        })
+
+    </script>
+</body>
+</html>

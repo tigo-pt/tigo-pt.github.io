@@ -1,0 +1,120 @@
+﻿<DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Netflix</title>
+        <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+        <link href="../Content/font-awesome.min.css" rel="stylesheet" />
+        <style>
+            body {
+                background-image: url(https://img5.goodfon.com/wallpaper/nbig/1/61/fon-netflix-logo-raduga-tsvet-fon-background-skachat-oboi-sk.jpg)
+            }
+
+            #main {
+                background-color: rgba(0,0,0,0.5);
+            }
+
+            i {
+                color: white
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="index.html" title="Netflix">
+                <img src="Netflix-Logo.wine.png" height="30" class="d-inline-block align-top" alt="" />
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="see_later.html"><i class="fa fa-list"></i> Ver mais tarde<span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="favorites.html"><i class="fa fa-list"></i> Favorites <span class="sr-only">(current)</span></a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="Log_in.html">
+                            <img src="User logo2.png" height="30" />
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container-fluid" id="main" style="margin-bottom:60px">
+            <div class="container" style="color:white">
+                <div class="mt-2 row">
+                    <h2 data-bind="text:name()" class="ml-1"></h2>
+                </div>
+                <div class=" mb-3 row">
+                    <h1 class="ml-2">Ver mais tarde</h1>
+                </div>
+                <div class=" mb-3 row" data-bind="visible: v()">
+                    <h2 class="ml-2">Sem titulos</h2>
+                </div>
+                <table class="table table-striped table-sm small" style="color:white">
+                    <tbody data-bind="foreach: titles">
+                        <tr>
+                            <td data-bind="text: Name"></td>
+                            <td class="text-right">
+                                <a class="btn  btn-sm" data-bind="attr: { href:'./Title_view.html?id=' + Id }">
+                                    <i class="fa fa-eye" title="Selecione para ver detalhes"></i>
+                                </a>
+                                <button class="btn btn-sm">
+                                    <i class="fa fa-trash" data-bind="click: $parent.removefavorite.bind($data,p)" title="Remover dos favoritos"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <nav class="navbar navbar-dark fixed-bottom bg-dark" role="navigation">
+            <div class="container">
+                <div class="navbar-text small">&copy;ITW2020 - Introdução às Tecnologias Web</div>
+                <div class="navbar-right navbar-text small d-sm-none d-md-block"><a href="http://www.ua.pt" title="Universidade de Aveiro">Universidade de Aveiro</a></div>
+            </div>
+        </nav>
+        <script src="../Scripts/jquery-3.5.1.min.js"></script>
+        <script src="../Scripts/bootstrap.min.js"></script>
+        <script src="../Scripts/knockout-3.5.1.js"></script>
+        <script src="../Scripts/amplify.min.js"></script>
+        <script>
+            function vm() {
+                var self = this;
+                self.Id = ko.observable()
+                self.name = ko.observable()
+                self.titles = ko.observableArray()
+                self.v = ko.observable(false)
+                self.removefavorite = function (p) {
+                    lst = amplify.store('see_later')
+                    lst.splice(p,1)
+                    if (lst.length == 0) {
+                        amplify.store('see_later', null)
+                        self.v(true)
+                    }
+                    else {
+                        amplify.store('see_later', lst)
+                    }
+                    self.titles(amplify.store('see_later'))
+                }
+                self.activate = function () {
+                    self.titles(amplify.store('see_later'))
+                    lst = amplify.store('see_later')
+                    if (lst == undefined) {
+                        self.v(true)
+                    }
+                }
+                self.activate()
+            }
+            $().ready(function () {
+                ko.applyBindings(new vm())
+                console.log(amplify.store('see_later'))
+            })
+        </script>
+    </body>
+</html>

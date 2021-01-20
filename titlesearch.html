@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Netflix</title>
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="../Content/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-image: url(https://img5.goodfon.com/wallpaper/nbig/1/61/fon-netflix-logo-raduga-tsvet-fon-background-skachat-oboi-sk.jpg)
+        }
+
+        #main {
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        i {
+            color: white
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html" title="Netflix">
+            <img src="Netflix-Logo.wine.png" height="30" class="d-inline-block align-top" alt="" />
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="nav navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="see_later.html"><i class="fa fa-list"></i> Ver mais tarde<span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="favorites.html"><i class="fa fa-list"></i> Favorites <span class="sr-only">(current)</span></a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="Log_in.html">
+                        <img src="User logo2.png" height="30" />
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container-fluid" id="main" style="margin-bottom:60px">
+        <div class="container" style="color:white">
+            <div class="mt-2 row">
+                <h2 data-bind="text:name()" class="ml-1"></h2>
+            </div>
+            <div class=" mb-3 row">
+                <h1 class="ml-2">Resultados</h1>
+            </div>
+            <table class="table table-striped table-sm small" style="color:white">
+                <tbody data-bind="foreach: titles">
+                    <tr>
+                        <td data-bind="text:Name"></td>
+                        <td class="text-right">
+                            <a class="btn  btn-sm" data-bind="attr: { href:'./Title_view.html?id=' + Id }">
+                                <i class="fa fa-eye" title="Selecione para ver detalhes"></i>
+                            </a>
+                            <button class="btn  btn-sm" >
+                                <i class="fa fa-plus" data-bind="attr: { id: Id + 's'},click: $parent.addsee_later.bind($data,Id,Name)" title="Selecione para ver mais tarde"></i>
+                            </button>
+                            <button class="btn  btn-sm" >
+                                <i class="fa fa-heart-o" data-bind="attr: { id: Id + 'f'},click: $parent.addfavorite.bind($data,Id,Name)" title="Selecione para adicionar aos favoritos"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <nav class="navbar navbar-dark fixed-bottom bg-dark" role="navigation">
+        <div class="container">
+            <div class="navbar-text small">&copy;ITW2020 - Introdução às Tecnologias Web</div>
+            <div class="navbar-right navbar-text small d-sm-none d-md-block"><a href="http://www.ua.pt" title="Universidade de Aveiro">Universidade de Aveiro</a></div>
+        </div>
+    </nav>
+    <script src="../Scripts/jquery-3.5.1.min.js"></script>
+    <script src="../Scripts/bootstrap.min.js"></script>
+    <script src="../Scripts/knockout-3.5.1.js"></script>
+    <script src="../Scripts/amplify.min.js"></script>
+    <script>
+        function vm() {
+            var self = this;
+            self.Id = ko.observable()
+            self.name = ko.observable()
+            self.titles = ko.observableArray()
+            self.addsee_later = function addsee_later(id, nome) {
+                var v = 'oi'
+                obj = {
+                    'Name': nome,
+                    'Id': id
+                }
+                $('#' + id + 's').toggleClass('fa-plus');
+                $('#' + id + 's').toggleClass('fa-minus');
+
+                if (amplify.store('see_later') == undefined) {
+                    obj = {
+                        'Name': nome,
+                        'Id': id,
+                        'p': 0
+                    }
+
+                    lst = []
+                    lst.push(obj)
+                    amplify.store('see_later', lst)
+                }
+                else {
+                    lst2 = amplify.store('see_later')
+                    for (i in lst2) {
+                        if (id == lst2[i].Id) {
+                            p = lst2[i].p
+                            v = false
+                            break
+                        }
+                        else {
+                            v = true
+
+                        }
+                    }
+                    console.log(v)
+                    if (v) {
+                        obj = {
+                            'Name': nome,
+                            'Id': id,
+                            'p': (lst2.lenght - 1),
+                        }
+                        lst2.push(obj)
+                        amplify.store('see_later', lst2)
+                    }
+                    else {
+                        lst2.splice(p, 1)
+                        amplify.store('see_later', lst2)
+                    }
+                }
+
+            }
+
+            self.addfavorite = function addfavorite(id, nome) {
+                var v = 'oi'
+                obj = {
+                    'Name': nome,
+                    'Id': id
+                }
+                $('#' + id + 'f').toggleClass('fa-heart');
+                $('#' + id + 'f').toggleClass('fa-heart-o');
+
+                if (amplify.store('favorites') == undefined) {
+                    obj = {
+                        'Name': nome,
+                        'Id': id,
+                        'p': 0
+                    }
+
+                    lst = []
+                    lst.push(obj)
+                    amplify.store('favorites', lst)
+                }
+                else {
+                    lst2 = amplify.store('favorites')
+                    for (i in lst2) {
+                        if (id == lst2[i].Id) {
+                            p = lst2[i].p
+                            v = false
+                            break
+                        }
+                        else {
+                            v = true
+
+                        }
+                    }
+                    console.log(v)
+                    if (v) {
+                        obj = {
+                            'Name': nome,
+                            'Id': id,
+                            'p': (lst2.lenght - 1),
+                        }
+                        lst2.push(obj)
+                        amplify.store('favorites', lst2)
+                    }
+                    else {
+                        lst2.splice(p, 1)
+                        amplify.store('favorites', lst2)
+                    }
+                }
+
+            }
+            
+
+            self.activate = function (id) {
+                self.name(id.split('%20').join(' '))
+                $.ajax({
+                    type: 'GET',
+                    url: 'http://192.168.160.58/netflix/api/Search/Titles?name=' + id,
+                    success: function (data) {
+                        console.log(data)
+                        self.titles(data)
+                    }
+                })
+            }
+            var id = getid();
+            if (id == undefined)
+                self.activate(1);
+            else {
+                self.activate(id);
+            }
+        }
+        function getid() {
+            var sPageURL = window.location.href.toString();
+            for (i in sPageURL) {
+                if (sPageURL[i] === '=') {
+                    return String(sPageURL.slice((parseInt(i) + 1)))
+                }
+            }
+        }
+        $().ready(function () {
+            ko.applyBindings(new vm())
+        })
+    </script>
+</body>
+</html>
